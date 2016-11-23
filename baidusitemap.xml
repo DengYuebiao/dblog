@@ -3,8 +3,28 @@
 
     
   <url>
+    <loc>http://blog.dickdum.com/2016/11/23/%E4%B8%80%E4%BA%9B%E7%AE%80%E5%8D%95%E7%9A%84Markdown%E8%AF%AD%E6%B3%95/</loc>
+    <lastmod>2016-11-23T09:02:41.215Z</lastmod>
+    <data>
+        <display>
+        <title>一些简单的Markdown语法</title>
+        <pubTime>2016-11-22T16:00:00.000Z</pubTime>
+        
+        <tag>Markdown </tag>
+         
+         
+           
+             
+              <breadCrumb title="Markdown" url="http://blog.dickdum.com/categories/Markdown/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://blog.dickdum.com/2016/11/23/apache%E9%80%9A%E8%BF%87%E9%85%8D%E7%BD%AEhttpd.conf%E7%BB%91%E5%AE%9A%E5%A4%9A%E4%B8%AA%E5%9F%9F%E5%90%8D%E5%8F%8A%E4%BA%8C%E7%BA%A7%E5%9F%9F%E5%90%8D/</loc>
-    <lastmod>2016-11-23T07:03:28.677Z</lastmod>
+    <lastmod>2016-11-23T07:06:01.717Z</lastmod>
     <data>
         <display>
         <title>apache通过配置httpd.conf绑定多个域名及二级域名</title>
@@ -17,21 +37,6 @@
              
               <breadCrumb title="apache" url="http://blog.dickdum.com/categories/apache/"/>
           
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://blog.dickdum.com/2016/11/22/%E6%AC%A2%E8%BF%8E%E4%BD%BF%E7%94%A8%20Cmd%20Markdown%20%E7%BC%96%E8%BE%91%E9%98%85%E8%AF%BB%E5%99%A8/</loc>
-    <lastmod>2016-11-22T06:39:51.233Z</lastmod>
-    <data>
-        <display>
-        <title></title>
-        <pubTime>2016-11-22T06:47:50.327Z</pubTime>
-        
-         
-           
         </display>
     </data>
     </url>
