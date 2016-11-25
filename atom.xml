@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://blog.dickdum.com/"/>
-  <updated>2016-11-25T06:46:28.270Z</updated>
+  <updated>2016-11-23T07:06:01.717Z</updated>
   <id>http://blog.dickdum.com/</id>
   
   <author>
@@ -16,11 +16,36 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>apache通过配置httpd.conf绑定多个域名及二级域名</title>
+    <link href="http://blog.dickdum.com/2016/11/23/apache%E9%80%9A%E8%BF%87%E9%85%8D%E7%BD%AEhttpd.conf%E7%BB%91%E5%AE%9A%E5%A4%9A%E4%B8%AA%E5%9F%9F%E5%90%8D%E5%8F%8A%E4%BA%8C%E7%BA%A7%E5%9F%9F%E5%90%8D/"/>
+    <id>http://blog.dickdum.com/2016/11/23/apache通过配置httpd.conf绑定多个域名及二级域名/</id>
+    <published>2016-11-22T16:00:00.000Z</published>
+    <updated>2016-11-23T07:06:01.717Z</updated>
+    
+    <content type="html"><![CDATA[<p>  今天小D我有一个这样的功能需求：配置不同的子域名来指向同一服务器的不同目录。于是我在网上搜到以下方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">方法一：</div><div class="line">  打开http.conf </div><div class="line">  1，#ServerName 127.0.0.1 修改成 ServerName *:80 （注意前面的#号要去掉，下同）</div><div class="line">  2，#NameVirtualHost * 修改成 NameVirtualHost *:80 </div><div class="line">  3，在文件最后面有虚拟主机格式， </div><div class="line">    #&lt;VirtualHost *&gt; </div><div class="line">    #   ServerAdmin [email]admin@minidx.com[/email] </div><div class="line">    #   DocumentRoot /www/httpd/html/minidx.com </div><div class="line">    #   ServerName minidx.com </div><div class="line">    #   ErrorLog logs/minidx.com-error_log </div><div class="line">    #   CustomLog logs/minidx.com-access_log common </div><div class="line">    #&lt;/VirtualHost&gt; </div><div class="line">    简单的添加： </div><div class="line">    &lt;VirtualHost *:80&gt; </div><div class="line">      DocumentRoot usr/local/www/ </div><div class="line">      ServerName   dickdum.com </div><div class="line">    &lt;/VirtualHost&gt; </div><div class="line">    &lt;VirtualHost *:80&gt; </div><div class="line">      DocumentRoot usr/local/www/minidx.com/ </div><div class="line">      ServerName   minidx.com </div><div class="line">    &lt;/VirtualHost&gt; </div><div class="line">    &lt;VirtualHost *:80&gt; </div><div class="line">      DocumentRoot   usr/local/www/ntt.cc/ </div><div class="line">      ServerName   ntt.cc </div><div class="line">    &lt;/VirtualHost&gt;</div></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">方法二：</div><div class="line">    1、httpd.conf 中需要打开mod_rewrite功能。具体操作就是: </div><div class="line">        在apache的 httpd.conf中 去掉LoadModule rewrite_module modules/mod_rewrite.so前面的#，</div><div class="line">       重启apache生效。</div><div class="line">    2、目录权限设置：</div><div class="line">        Apache的httpd.conf中找到网站目录对应的 Directory 配置</div><div class="line">       将 &quot;AllowOverride None&quot; 改为 &quot;AllowOverride All&quot;</div><div class="line">       因为如果设置为&quot;AllowOverride None&quot;.htaccess中的rewrite指令对该文件夹就无效了。</div><div class="line">    3、在httpd.conf 的最后，添加以下内容：</div><div class="line">        RewriteEngine on </div><div class="line">        RewriteMap lowercase int:tolower </div><div class="line">        RewriteMap vhost txt:/usr/local/etc/apache/vhost.map </div><div class="line">        RewriteCond $&#123;lowercase:%&#123;SERVER_NAME&#125;&#125; ^(.+)$ </div><div class="line">        RewriteCond $&#123;vhost:%1&#125; ^(/.*)$ </div><div class="line">        RewriteRule ^/(.*)$ %1/$1</div><div class="line">       其中的 /usr/local/etc/apache 是你的 apache 服务器配置文件所在路径，根据实际情况更改（例如在/etc/httpd/下面）。</div><div class="line">       然后，在这个所在路径的目录下创建一个文件： vhost.map，内容为：</div><div class="line">        www.minidx.com /usr/local/www/minidx.com </div><div class="line">        www.ntt.cc /usr/local/www/ntt.cc </div><div class="line">        blog.minidx.com /usr/local/www/minidx.com/blog</div><div class="line">        以上部分都是：&quot; 域名+空格+绝对路径&quot; 的形式。</div><div class="line">       最后，在网站根目录 /usr/local/www/下，创建对应目录就可以了。</div><div class="line">       如果需要增加，修改或者删除域名，子域名，仅仅需要更改vhost.map文件，而不用重启apache进程。</div></pre></td></tr></table></figure>
+<p>注意：使用方法二的话要把方法一里设置的全部注掉，不然是不成功的，小D在测试两种方法的时候因为先测试了方法一，在测试方法二的时候怎么弄都没成功，后来经大神指点了之后才发现原来是方法一里的配置影响了。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;  今天小D我有一个这样的功能需求：配置不同的子域名来指向同一服务器的不同目录。于是我在网上搜到以下方法：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;l
+    
+    </summary>
+    
+      <category term="apache" scheme="http://blog.dickdum.com/categories/apache/"/>
+    
+    
+      <category term="apache" scheme="http://blog.dickdum.com/tags/apache/"/>
+    
+  </entry>
+  
+  <entry>
     <title>一些简单的Markdown语法</title>
     <link href="http://blog.dickdum.com/2016/11/23/%E4%B8%80%E4%BA%9B%E7%AE%80%E5%8D%95%E7%9A%84Markdown%E8%AF%AD%E6%B3%95/"/>
     <id>http://blog.dickdum.com/2016/11/23/一些简单的Markdown语法/</id>
     <published>2016-11-22T16:00:00.000Z</published>
-    <updated>2016-11-25T06:46:28.270Z</updated>
+    <updated>2016-11-25T06:52:33.065Z</updated>
     
     <content type="html"><![CDATA[<h1 id="一级标题"><a href="#一级标题" class="headerlink" title="一级标题"></a>一级标题</h1><h2 id="二级标题"><a href="#二级标题" class="headerlink" title="二级标题"></a><font color="2e8857">二级标题</font></h2><h3 id="三级标题"><a href="#三级标题" class="headerlink" title="三级标题"></a>三级标题</h3><h4 id="四级标题"><a href="#四级标题" class="headerlink" title="四级标题"></a><font color="red">四级标题</font></h4><h6 id="六级标题"><a href="#六级标题" class="headerlink" title="六级标题"></a>六级标题</h6><p><em>斜体</em><br><strong>粗体</strong><br><strong><em>粗斜体</em></strong><br>普通字体</p>
 <font color="blue">带颜色的字体</font>
@@ -47,7 +72,7 @@
 <p><a href="https://www.baidu.com/" target="_blank" rel="external">这是百度的链接地址</a></p>
 <p><a href="mailto:dickdum@163.com" target="_blank" rel="external">这是我的邮箱</a></p>
 <p><a href="https://www.baidu.com" target="_blank" rel="external">https://www.baidu.com</a>  </p>
-<p><a href="&#x6d;&#97;&#x69;&#108;&#116;&#x6f;&#x3a;&#100;&#105;&#x63;&#107;&#x64;&#117;&#109;&#x40;&#x31;&#54;&#51;&#46;&#99;&#x6f;&#109;">&#100;&#105;&#x63;&#107;&#x64;&#117;&#109;&#x40;&#x31;&#54;&#51;&#46;&#99;&#x6f;&#109;</a></p>
+<p><a href="&#x6d;&#x61;&#105;&#108;&#116;&#x6f;&#x3a;&#x64;&#105;&#x63;&#107;&#100;&#117;&#x6d;&#64;&#x31;&#x36;&#51;&#x2e;&#99;&#x6f;&#109;">&#x64;&#105;&#x63;&#107;&#100;&#117;&#x6d;&#64;&#x31;&#x36;&#51;&#x2e;&#99;&#x6f;&#109;</a></p>
 <p><img src="https://ss0.bdstatic.com/5aV1bjqh_Q23odCf/static/superman/img/logo/bd_logo1_31bdc765.png" alt="这是一张图片链接"></p>
 <ul>
 <li>无序列表<ul>
@@ -139,31 +164,6 @@ one is part of the blockquote designator.
     
     
       <category term="Markdown" scheme="http://blog.dickdum.com/tags/Markdown/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>apache通过配置httpd.conf绑定多个域名及二级域名</title>
-    <link href="http://blog.dickdum.com/2016/11/23/apache%E9%80%9A%E8%BF%87%E9%85%8D%E7%BD%AEhttpd.conf%E7%BB%91%E5%AE%9A%E5%A4%9A%E4%B8%AA%E5%9F%9F%E5%90%8D%E5%8F%8A%E4%BA%8C%E7%BA%A7%E5%9F%9F%E5%90%8D/"/>
-    <id>http://blog.dickdum.com/2016/11/23/apache通过配置httpd.conf绑定多个域名及二级域名/</id>
-    <published>2016-11-22T16:00:00.000Z</published>
-    <updated>2016-11-23T07:06:01.717Z</updated>
-    
-    <content type="html"><![CDATA[<p>  今天小D我有一个这样的功能需求：配置不同的子域名来指向同一服务器的不同目录。于是我在网上搜到以下方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">方法一：</div><div class="line">  打开http.conf </div><div class="line">  1，#ServerName 127.0.0.1 修改成 ServerName *:80 （注意前面的#号要去掉，下同）</div><div class="line">  2，#NameVirtualHost * 修改成 NameVirtualHost *:80 </div><div class="line">  3，在文件最后面有虚拟主机格式， </div><div class="line">    #&lt;VirtualHost *&gt; </div><div class="line">    #   ServerAdmin [email]admin@minidx.com[/email] </div><div class="line">    #   DocumentRoot /www/httpd/html/minidx.com </div><div class="line">    #   ServerName minidx.com </div><div class="line">    #   ErrorLog logs/minidx.com-error_log </div><div class="line">    #   CustomLog logs/minidx.com-access_log common </div><div class="line">    #&lt;/VirtualHost&gt; </div><div class="line">    简单的添加： </div><div class="line">    &lt;VirtualHost *:80&gt; </div><div class="line">      DocumentRoot usr/local/www/ </div><div class="line">      ServerName   dickdum.com </div><div class="line">    &lt;/VirtualHost&gt; </div><div class="line">    &lt;VirtualHost *:80&gt; </div><div class="line">      DocumentRoot usr/local/www/minidx.com/ </div><div class="line">      ServerName   minidx.com </div><div class="line">    &lt;/VirtualHost&gt; </div><div class="line">    &lt;VirtualHost *:80&gt; </div><div class="line">      DocumentRoot   usr/local/www/ntt.cc/ </div><div class="line">      ServerName   ntt.cc </div><div class="line">    &lt;/VirtualHost&gt;</div></pre></td></tr></table></figure></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">方法二：</div><div class="line">    1、httpd.conf 中需要打开mod_rewrite功能。具体操作就是: </div><div class="line">        在apache的 httpd.conf中 去掉LoadModule rewrite_module modules/mod_rewrite.so前面的#，</div><div class="line">       重启apache生效。</div><div class="line">    2、目录权限设置：</div><div class="line">        Apache的httpd.conf中找到网站目录对应的 Directory 配置</div><div class="line">       将 &quot;AllowOverride None&quot; 改为 &quot;AllowOverride All&quot;</div><div class="line">       因为如果设置为&quot;AllowOverride None&quot;.htaccess中的rewrite指令对该文件夹就无效了。</div><div class="line">    3、在httpd.conf 的最后，添加以下内容：</div><div class="line">        RewriteEngine on </div><div class="line">        RewriteMap lowercase int:tolower </div><div class="line">        RewriteMap vhost txt:/usr/local/etc/apache/vhost.map </div><div class="line">        RewriteCond $&#123;lowercase:%&#123;SERVER_NAME&#125;&#125; ^(.+)$ </div><div class="line">        RewriteCond $&#123;vhost:%1&#125; ^(/.*)$ </div><div class="line">        RewriteRule ^/(.*)$ %1/$1</div><div class="line">       其中的 /usr/local/etc/apache 是你的 apache 服务器配置文件所在路径，根据实际情况更改（例如在/etc/httpd/下面）。</div><div class="line">       然后，在这个所在路径的目录下创建一个文件： vhost.map，内容为：</div><div class="line">        www.minidx.com /usr/local/www/minidx.com </div><div class="line">        www.ntt.cc /usr/local/www/ntt.cc </div><div class="line">        blog.minidx.com /usr/local/www/minidx.com/blog</div><div class="line">        以上部分都是：&quot; 域名+空格+绝对路径&quot; 的形式。</div><div class="line">       最后，在网站根目录 /usr/local/www/下，创建对应目录就可以了。</div><div class="line">       如果需要增加，修改或者删除域名，子域名，仅仅需要更改vhost.map文件，而不用重启apache进程。</div></pre></td></tr></table></figure>
-<p>注意：使用方法二的话要把方法一里设置的全部注掉，不然是不成功的，小D在测试两种方法的时候因为先测试了方法一，在测试方法二的时候怎么弄都没成功，后来经大神指点了之后才发现原来是方法一里的配置影响了。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;  今天小D我有一个这样的功能需求：配置不同的子域名来指向同一服务器的不同目录。于是我在网上搜到以下方法：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;l
-    
-    </summary>
-    
-      <category term="apache" scheme="http://blog.dickdum.com/categories/apache/"/>
-    
-    
-      <category term="apache" scheme="http://blog.dickdum.com/tags/apache/"/>
     
   </entry>
   
